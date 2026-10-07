@@ -1,0 +1,10 @@
+<?php
+require_once 'config/database.php'; require_once 'includes/functions.php';
+$error = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name=trim($_POST['name']??''); $email=trim($_POST['email']??''); $phone=trim($_POST['phone']??''); $address=trim($_POST['address']??''); $password=$_POST['password']??''; $confirm=$_POST['confirm_password']??'';
+    if (!$name || !filter_var($email,FILTER_VALIDATE_EMAIL) || !$phone || !$address || strlen($password)<6 || $password!==$confirm) $error='Please complete all fields correctly. Passwords must match and be at least 6 characters.';
+    else { $check=$pdo->prepare('SELECT id FROM users WHERE email=?'); $check->execute([$email]); if ($check->fetch()) $error='An account with this email already exists.'; else { $stmt=$pdo->prepare('INSERT INTO users (name,email,password,phone,address) VALUES (?,?,?,?,?)'); $stmt->execute([$name,$email,password_hash($password,PASSWORD_DEFAULT),$phone,$address]); redirect('login.php?message='.urlencode('Registration successful. Please login.')); } }
+}
+$page_title='Register'; include 'includes/header.php'; ?>
+<div class="form-shell"><h1>Create account</h1><p class="muted">Join FoodNest for easy ordering.</p><?php if ($error): ?><p class="error"><?= esc($error) ?></p><?php endif; ?><form method="post" onsubmit="return validatePasswords()" novalidate><label>Full Name<input name="name" required maxlength="100" value="<?= esc($_POST['name']??'') ?>"></label><div class="two-col"><label>Email<input type="email" name="email" required value="<?= esc($_POST['email']??'') ?>"></label><label>Phone<input name="phone" required pattern="[0-9+ -]{8,15}" value="<?= esc($_POST['phone']??'') ?>"></label></div><label>Address<textarea name="address" required><?= esc($_POST['address']??'') ?></textarea></label><div class="two-col"><label>Password<input id="password" type="password" name="password" required minlength="6"></label><label>Confirm Password<input id="confirm_password" type="password" name="confirm_password" required minlength="6"></label></div><div class="form-actions"><button type="submit">Register</button></div></form></div><?php include 'includes/footer.php'; ?>

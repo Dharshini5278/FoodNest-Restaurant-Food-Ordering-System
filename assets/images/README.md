@@ -1,0 +1,1 @@
+Place local food images here if you want to run the visual demo without external image access. Suggested names: pizza.jpg, burger.jpg, biriyani.jpg, pasta.jpg, dessert.jpg, juice.jpg. The seed data currently uses reliable remote image URLs so the sample menu renders immediately.

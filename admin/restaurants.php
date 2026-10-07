@@ -1,0 +1,8 @@
+<?php
+$page_title = 'Restaurant Management';
+include 'includes/header.php';
+$restaurants = $pdo->query('SELECT r.*, COUNT(rf.id) AS food_count FROM restaurants r LEFT JOIN restaurant_foods rf ON rf.restaurant_id=r.id GROUP BY r.id ORDER BY r.id DESC')->fetchAll();
+?>
+<section class="page-banner"><div class="container"><div class="section-head"><div><div class="eyebrow">Discovery catalogue</div><h1>Restaurants</h1></div><a class="button" href="add_restaurant.php">Add Restaurant</a></div></div></section>
+<section class="section"><div class="container"><div class="restaurant-grid"><?php foreach ($restaurants as $restaurant): $restaurant_image = preg_match('/^https?:\/\//', $restaurant['image'] ?? '') ? $restaurant['image'] : '../' . ltrim($restaurant['image'] ?? '', '/'); ?><article class="restaurant-card"><img src="<?= esc($restaurant_image ?: '../assets/images/restaurants/foodnest-kitchen.jpg') ?>" alt="<?= esc($restaurant['name']) ?>"><div class="restaurant-info"><h3><?= esc($restaurant['name']) ?></h3><p><?= esc($restaurant['cuisine']) ?></p><p class="muted"><?= esc($restaurant['address']) ?></p><p><span class="<?= $restaurant['is_active'] ? 'open' : 'closed' ?>"><?= $restaurant['is_active'] ? 'Active' : 'Disabled' ?></span> &middot; <?= (int) $restaurant['food_count'] ?> foods</p><a class="button secondary small" href="edit_restaurant.php?id=<?= $restaurant['id'] ?>">Edit</a> <a class="button secondary small" href="food_assignments.php?restaurant_id=<?= $restaurant['id'] ?>">Menu</a> <a class="button small" href="delete_restaurant.php?id=<?= $restaurant['id'] ?>" onclick="return confirm('Delete this restaurant?')">Delete</a></div></article><?php endforeach; ?></div></div></section>
+<?php include 'includes/footer.php'; ?>

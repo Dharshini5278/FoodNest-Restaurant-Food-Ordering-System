@@ -1,0 +1,8 @@
+<?php
+require_once '../config/database.php'; require_once '../includes/auth.php';
+if (empty($_SESSION['user'])) json_response(false, 'Please login first.');
+$data=json_decode(file_get_contents('php://input'),true) ?: $_POST; $address=trim($data['delivery_address']??''); $payment=$data['payment_method']??'';
+if(!$address || !in_array($payment,['Cash on Delivery','UPI','Card'],true)) json_response(false,'Please provide a valid address and payment method.');
+$items=cart_items($pdo); if(!$items) json_response(false,'Your cart is empty.'); $totals=cart_totals($pdo); $restaurant_id=(int)($_SESSION['cart_restaurant_id']??0);
+try { $pdo->beginTransaction(); $stmt=$pdo->prepare('INSERT INTO orders (user_id,restaurant_id,total_amount,delivery_address,payment_method) VALUES (?,?,?,?,?)'); $stmt->execute([$_SESSION['user']['id'],$restaurant_id ?: null,$totals['total'],$address,$payment]); $order_id=$pdo->lastInsertId(); $item_stmt=$pdo->prepare('INSERT INTO order_items (order_id,food_id,quantity,price) VALUES (?,?,?,?)'); foreach($items as $item) $item_stmt->execute([$order_id,$item['id'],$item['quantity'],$item['price']]); $pdo->commit(); $_SESSION['cart']=[]; unset($_SESSION['cart_restaurant_id']); json_response(true,'Order placed.', ['order_id'=>$order_id]); } catch(Exception $e) { if($pdo->inTransaction()) $pdo->rollBack(); json_response(false,'We could not place the order. Please try again.'); }
+?>

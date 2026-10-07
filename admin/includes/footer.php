@@ -1,0 +1,1 @@
+</main><footer class="site-footer"><div class="container footer-flex"><strong>FoodNest Admin</strong><a href="../index.php">View customer site</a></div></footer><script src="../assets/js/script.js"></script></body></html>

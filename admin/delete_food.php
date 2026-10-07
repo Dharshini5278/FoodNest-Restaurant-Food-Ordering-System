@@ -1,0 +1,1 @@
+<?php require_once 'includes/../includes/header.php'; $id=(int)($_GET['id']??0); try{$stmt=$pdo->prepare('DELETE FROM foods WHERE id=?');$stmt->execute([$id]);}catch(PDOException $e){} redirect('foods.php'); ?>
